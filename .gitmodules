@@ -1,0 +1,3 @@
+[submodule "common-utility"]
+	path = common-utility
+	url = https://github.com/TheWiner1/SenseHat.git
