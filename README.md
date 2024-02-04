@@ -2,9 +2,27 @@
 
 ## C language demonstration code
 
-### Tested with:  Sense HAT v1.0 / Raspberry Pi 3 B+ / Raspbian GNU/Linux 10 (buster)
+### Tested with:  
+- Sense HAT v1.0 / Raspberry Pi 3 B+ / Raspbian GNU/Linux 10 (buster)
+- Sense HAT v1.0 / Raspberry Pi 4  / Raspbian GNU/Linux 11 (Bullseye) in 2024
 
-To build, type:   make
+
+### TO USE
+
+Clone:
+```
+git clone --recurse-submodules  https://github.com/TheWiner1/c-sense-hat
+```
+
+Each time you make a modification and you want to run the project:
+```
+make clean
+```
+and then
+```
+make 
+```
+
 
 pressure.c : Get pressure and temperature readings from the LPS25H pressure sensor.
 
@@ -17,21 +35,3 @@ The measured ambient values are then converted to give the output humidity and t
 by reference to these calibration linear equations.
 
 led_matrix.c : Demonstrate control of the LED matrix using the mmap method to map the led device into memory.
-
-
-
-### UPDATED BY THE TEAM
-
-Before running, clone this repository:
-```
-git clone https://github.com/ChandlerEN/SenseHat
-```
-
-Each time you make a modification and you want to run the project:
-```
-make clean
-```
-and then
-```
-make 
-```
