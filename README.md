@@ -18,11 +18,14 @@ Each time you make a modification and you want to run the project:
 ```
 make clean
 ```
-and then
+then
 ```
 make 
 ```
-
+finally
+```
+./sock
+```
 
 pressure.c : Get pressure and temperature readings from the LPS25H pressure sensor.
 
