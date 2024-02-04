@@ -1,3 +1,6 @@
 [submodule "common-utility"]
 	path = common-utility
 	url = https://github.com/TheWiner1/SenseHat.git
+[submodule "SenseHat"]
+	path = SenseHat
+	url = https://github.com/TheWiner1/SenseHat.git
