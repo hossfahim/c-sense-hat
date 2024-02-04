@@ -4,19 +4,33 @@ WARN	= -Wall
 
 #################################################
 
-all: pressure humidity led_matrix
+all: led_matrix sock
 
-pressure:	pressure.o
+# pressure.o:	pressure.c pressure.h
+# 	$(CC) -c $(WARN) $? -o $@
+
+# humidity.o:	humidity.c humidity.h
+# 	$(CC) -c $(WARN) $? -o $@
+
+pressure: pressure.o
 	$(CC) $(WARN) $? -o $@ $(LIBS)
 
-humidity:	humidity.o
+humidity: humidity.o
 	$(CC) $(WARN) $? -o $@ $(LIBS)
+
+SenseHat/senseHat: SenseHat/senseHat.o
+	$(CC) $(WARN) $? -o $@ $(LIBS)
+# SenseHat/senseHat.o: SenseHat/senseHat.c
+# 	$(CC) $(CFLAGS) -c $< -o $@ $(LIBS)
 
 led_matrix:	led_matrix.o
 	$(CC) $(WARN) $? -o $@ $(LIBS)
 
-%.o:	%.c
+sock: sock.o humidity.o pressure.o SenseHat/senseHat.o
+	$(CC) $(WARN) $? -o $@ $(LIBS)
+
+%.o:	%.c 
 	$(CC) -c $(WARN) $? -o $@
 
 clean:
-	rm -f *.o pressure  humidity led_matrix *.c~
+	rm -f *.o sock led_matrix *.c~ SenseHat/*o SenseHat/joystick_test SenseHat/senseHat_test

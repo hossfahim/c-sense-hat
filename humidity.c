@@ -1,18 +1,3 @@
-/*
- *  C code to read humidity and temperature from the
- *  Raspberry Pi Sense HAT add-on board (HTS221 sensor)
- *
- *  sudo raspi-config --> interfacing options --> enable i2c
- *
- *  sudo apt install libi2c-dev
- *
- *  Build with:  gcc -Wall -O2 humidity.c -o humidity -li2c
- *               or just 'make'
- *
- *  Tested with:  Sense HAT v1.0 / Raspberry Pi 3 B+ / Raspbian GNU/Linux 10 (buster)
- *
- */
-
 #include <fcntl.h>
 #include <i2c/smbus.h>
 #include <linux/i2c-dev.h>
@@ -22,37 +7,23 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#define DEV_PATH "/dev/i2c-1"
-#define DEV_ID 0x5F
-#define WHO_AM_I 0x0F
+#include "humidity.h"
 
-#define CTRL_REG1 0x20
-#define CTRL_REG2 0x21
 
-#define T0_OUT_L 0x3C
-#define T0_OUT_H 0x3D
-#define T1_OUT_L 0x3E
-#define T1_OUT_H 0x3F
-#define T0_degC_x8 0x32
-#define T1_degC_x8 0x33
-#define T1_T0_MSB 0x35
 
-#define TEMP_OUT_L 0x2A
-#define TEMP_OUT_H 0x2B
+// int main(){
+//     double T_DegC, H_rH; 
+//     getHumidity(&T_DegC, &H_rH);
 
-#define H0_T0_OUT_L 0x36
-#define H0_T0_OUT_H 0x37
-#define H1_T0_OUT_L 0x3A
-#define H1_T0_OUT_H 0x3B
-#define H0_rH_x2 0x30
-#define H1_rH_x2 0x31
+//     printf("Temp (from humid) = %.1f°C\n", T_DegC);
+//     printf("Humidity = %.0f%% rH\n", H_rH);
+    
+//     return 0;
+// }
 
-#define H_T_OUT_L 0x28
-#define H_T_OUT_H 0x29
 
-void delay(int);
 
-int main(void) {
+void getHumidity(double *T_DegC, double *H_rH) {
     int fd = 0;
     uint8_t status = 0;
 
@@ -173,20 +144,20 @@ int main(void) {
     int16_t H_T_OUT = h_t_out_h << 8 | h_t_out_l;
 
     /* Calculate ambient temperature */
-    double T_DegC = (t_gradient_m * T_OUT) + t_intercept_c;
+    *T_DegC = (t_gradient_m * T_OUT) + t_intercept_c;
 
     /* Calculate ambient humidity */
-    double H_rH = (h_gradient_m * H_T_OUT) + h_intercept_c;
+    *H_rH = (h_gradient_m * H_T_OUT) + h_intercept_c;
 
     /* Output */
-    printf("Temp (from humid) = %.1f°C\n", T_DegC);
-    printf("Humidity = %.0f%% rH\n", H_rH);
+    // printf("Temp (from humid) = %.1f°C\n", T_DegC);
+    // printf("Humidity = %.0f%% rH\n", H_rH);
 
     /* Power down the device */
     i2c_smbus_write_byte_data(fd, CTRL_REG1, 0x00);
     close(fd);
 
-    return (0);
+    // return (0);
 }
 
 void delay(int t) {

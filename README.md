@@ -17,3 +17,21 @@ The measured ambient values are then converted to give the output humidity and t
 by reference to these calibration linear equations.
 
 led_matrix.c : Demonstrate control of the LED matrix using the mmap method to map the led device into memory.
+
+
+
+### UPDATED BY THE TEAM
+
+Before running, clone this repository:
+```
+git clone https://github.com/ChandlerEN/SenseHat
+```
+
+Each time you make a modification and you want to run the project:
+```
+make clean
+```
+and then
+```
+make 
+```

@@ -22,49 +22,51 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#define DEV_ID 0x5c
-#define DEV_PATH "/dev/i2c-1"
-#define WHO_AM_I 0x0F
-#define CTRL_REG1 0x20
-#define CTRL_REG2 0x21
-#define PRESS_OUT_XL 0x28
-#define PRESS_OUT_L 0x29
-#define PRESS_OUT_H 0x2A
-#define TEMP_OUT_L 0x2B
-#define TEMP_OUT_H 0x2C
+#include "pressure.h"
+#include "pressure.h"
 
-void delay(int);
+// int main(void)
+// {
+//     double t_c = 0.0;
+//     double pressure = 0.0;
 
-int main(void) {
+//     getPressure(t_c, pressure);
+
+//     return (0);
+// }
+
+void getPressure(double *t_c, double *pressure)
+{
     int fd = 0;
     uint8_t temp_out_l = 0, temp_out_h = 0;
     int16_t temp_out = 0;
-    double t_c = 0.0;
 
     uint8_t press_out_xl = 0;
     uint8_t press_out_l = 0;
     uint8_t press_out_h = 0;
 
     int32_t press_out = 0;
-    double pressure = 0.0;
 
     uint8_t status = 0;
 
     /* open i2c comms */
-    if ((fd = open(DEV_PATH, O_RDWR)) < 0) {
+    if ((fd = open(DEV_PATH, O_RDWR)) < 0)
+    {
         perror("Unable to open i2c device");
         exit(1);
     }
 
     /* configure i2c slave */
-    if (ioctl(fd, I2C_SLAVE, DEV_ID) < 0) {
+    if (ioctl(fd, I2C_SLAVE, DEV_ID) < 0)
+    {
         perror("Unable to configure i2c slave device");
         close(fd);
         exit(1);
     }
 
     /* check we are who we should be */
-    if (i2c_smbus_read_byte_data(fd, WHO_AM_I) != 0xBD) {
+    if (i2c_smbus_read_byte_data(fd, WHO_AM_I) != 0xBD)
+    {
         printf("%s\n", "who_am_i error");
         close(fd);
         exit(1);
@@ -82,8 +84,9 @@ int main(void) {
     i2c_smbus_write_byte_data(fd, CTRL_REG2, 0x01);
 
     /* Wait until the measurement is complete */
-    do {
-        delay(25); /* 25 milliseconds */
+    do
+    {
+        delay2(25); /* 25 milliseconds */
         status = i2c_smbus_read_byte_data(fd, CTRL_REG2);
     } while (status != 0);
 
@@ -101,21 +104,20 @@ int main(void) {
     press_out = press_out_h << 16 | press_out_l << 8 | press_out_xl;
 
     /* calculate output values */
-    t_c = 42.5 + (temp_out / 480.0);
-    pressure = press_out / 4096.0;
+    *t_c = 42.5 + (temp_out / 480.0);
+    *pressure = press_out / 4096.0;
 
     /*output */
-    printf("Temp (from press) = %.2f°C\n", t_c);
-    printf("Pressure = %.0f hPa\n", pressure);
+    // printf("Temp (from press) = %.2f°C\n", t_c);
+    // printf("Pressure = %.0f hPa\n", pressure);
 
     /* Power down the device */
     i2c_smbus_write_byte_data(fd, CTRL_REG1, 0x00);
 
     close(fd);
-
-    return (0);
 }
 
-void delay(int t) {
+void delay2(int t)
+{
     usleep(t * 1000);
 }
