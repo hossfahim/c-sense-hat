@@ -7,13 +7,14 @@
 #include "humidity.h"
 #include "pressure.h"
 #include "SenseHat/senseHat.h"
+#include "user.h"
 
 // REPLACE BY THE PORT SET IN THE GUI
 #define PORT 1234
 #define T_DegC_BuffER_SIZE 1024
 
 // REPLACE BY YOUR RPI IP ADRESS IN YOUR LOCAL NETWORK
-const char *HOST = "192.168.0.10";
+const char *HOST = "192.168.0.59";
 
 int main()
 {

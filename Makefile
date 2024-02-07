@@ -1,7 +1,6 @@
 CC		= gcc
-LIBS	= -li2c
+LIBS	= -li2c -lpthread
 WARN	= -Wall
-
 #################################################
 
 all: led_matrix sock
@@ -27,6 +26,9 @@ led_matrix:	led_matrix.o
 	$(CC) $(WARN) $? -o $@ $(LIBS)
 
 sock: sock.o humidity.o pressure.o SenseHat/senseHat.o
+	$(CC) $(WARN) $? -o $@ $(LIBS)
+
+user: user.o SenseHat/senseHat.o
 	$(CC) $(WARN) $? -o $@ $(LIBS)
 
 %.o:	%.c 
