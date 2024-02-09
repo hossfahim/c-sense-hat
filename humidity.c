@@ -141,7 +141,6 @@ double getHumidity() {
 
 
 
-
     /* Read the ambient humidity measurement (2 bytes to read) */
     uint8_t h_t_out_l = i2c_smbus_read_byte_data(fd, H_T_OUT_L);
     uint8_t h_t_out_h = i2c_smbus_read_byte_data(fd, H_T_OUT_H);

@@ -20,12 +20,11 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <sys/time.h>
-#include "SenseHat/senseHat.h"
+#include "sock.h"
 #include "pressure.h"
 
 
 #define POLICY SCHED_RR
-//#define POLICY SCHED_FIFO
 #define THREADSTACK 65536
 
 #define INCR_TEMP 1
@@ -41,7 +40,8 @@ typedef struct user_struct {
 	float		Td;
 	pthread_t	Thread;
 	int 		Keys;
-	sem_t   Sem;
+	int client_socket;
+	pthread_mutex_t Mutex;
 } UserStruct;
 
 
