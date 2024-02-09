@@ -10,9 +10,8 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <pthread.h>
+#include "user.h"
 
-#define POLICY SCHED_RR
-#define THREADSTACK 65536
 
 void delay2(int);
 double getPressure();

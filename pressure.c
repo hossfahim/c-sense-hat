@@ -231,7 +231,7 @@ int PressInit(PressStruct* Press){
 	minprio = sched_get_priority_min(POLICY);
 	maxprio = sched_get_priority_max(POLICY);
 	pthread_attr_setschedpolicy(&attr, POLICY);
-	param.sched_priority = minprio + (maxprio - minprio)/2;
+	param.sched_priority = (maxprio - minprio)/2;
 	pthread_attr_setstacksize(&attr, THREADSTACK);
 	pthread_attr_setschedparam(&attr, &param);
 
@@ -294,7 +294,7 @@ void* TempTask(void* ptr){
 		Temp->Ta = getTemperature();
 
 		//Send to Afficheur
-		sendToGUI(Temp->client_socket,3,Temp->Ta);
+		sendToGUI(Temp->client_socket,2,Temp->Ta);
 		
 		//sem post
     

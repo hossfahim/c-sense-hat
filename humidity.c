@@ -17,14 +17,7 @@
  *
  */
 #include "humidity.h"
-#include <fcntl.h>
-#include <i2c/smbus.h>
-#include <linux/i2c-dev.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
+#include "user.h"
 
 #define DEV_PATH "/dev/i2c-1"
 #define DEV_ID 0x5F
@@ -53,6 +46,9 @@
 
 #define H_T_OUT_L 0x28
 #define H_T_OUT_H 0x29
+
+int HumActivated = 0;
+pthread_barrier_t HumStartBarrier;
 
 void delay1(int);
 
@@ -163,4 +159,96 @@ double getHumidity() {
 
 void delay1(int t) {
     usleep(t * 1000);
+}
+
+void* HumTask(void* ptr){
+    printf("%s UserInit\n", __FUNCTION__);
+	HumStruct* Hum = (HumStruct*) ptr;
+	
+	pthread_barrier_wait(&HumStartBarrier);
+	
+	while(HumActivated == 1){
+		printf("%s UserActivated\n", __FUNCTION__);
+		
+	
+		pthread_mutex_lock(&(Hum->Mutex));
+		printf("%s HumWait\n", __FUNCTION__);
+		if (HumActivated == 0)
+					break;
+					
+		//recuperer Humure
+		Hum->hum = getHumidity();
+
+		//Send to Afficheur
+		sendToGUI(Hum->client_socket,4,Hum->hum);
+		
+		//sem post
+    
+    }
+    printf("%s : Terminé\n", __FUNCTION__);
+	pthread_exit(0); /* exit thread */
+}
+int HumInit(HumStruct* Hum){
+    
+    pthread_attr_t		attr;
+	struct sched_param	param;
+	int					minprio, maxprio;
+	printf("sem ?\n");
+	//sem_init(&(User->Sem), 0, 0);
+	pthread_mutex_init(&(Hum->Mutex),NULL);
+	
+	printf("barrier ?\n");
+
+	int cr = pthread_barrier_init(&HumStartBarrier, NULL, 2);
+	
+	printf("thread ?\n");
+	pthread_attr_init(&attr);
+	pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+	pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
+	minprio = sched_get_priority_min(POLICY);
+	maxprio = sched_get_priority_max(POLICY);
+	pthread_attr_setschedpolicy(&attr, POLICY);
+	param.sched_priority = (maxprio - minprio)/2;
+	pthread_attr_setstacksize(&attr, THREADSTACK);
+	pthread_attr_setschedparam(&attr, &param);
+
+	printf("thread create ?\n");
+	pthread_create( &Hum->Thread, &attr, &HumTask, Hum);
+	pthread_attr_destroy(&attr);
+	
+	printf("Hum ?\n");
+	Hum->hum = getHumidity();
+
+	return 0;
+    
+    }
+    
+int HumStart(){
+    
+    HumActivated = 1;
+	printf("%s HumActivated\n", __FUNCTION__);
+	pthread_barrier_wait(&HumStartBarrier);
+
+	pthread_barrier_destroy(&HumStartBarrier);
+	printf("%s Humidity démarré\n", __FUNCTION__);
+
+	return 0;
+    
+    
+    }
+	
+int HumStop(HumStruct* Hum){
+ 
+ HumActivated = 0;
+
+	
+	pthread_mutex_unlock(&(Hum->Mutex));
+
+	pthread_join(Hum->Thread,NULL);
+	
+	//sem_destroy(&(User->Sem));
+	pthread_mutex_destroy(&(Hum->Mutex));
+	
+	return 0;
 }
