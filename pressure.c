@@ -183,16 +183,16 @@ void delay2(int t) {
 }
 
 void* PressTask(void* ptr){
-    printf("%s UserInit\n", __FUNCTION__);
+    printf("%s PressInit\n", __FUNCTION__);
 	PressStruct* Press = (PressStruct*) ptr;
 	
 	pthread_barrier_wait(&PressStartBarrier);
 	
 	while(PressActivated == 1){
-		printf("%s UserActivated\n", __FUNCTION__);
 		
-		//Attente valeur joystick (semaphore)
-		//sem_wait(&(User->Sem));
+		
+		//Attente valeur joystick (mutex)
+		
 		pthread_mutex_lock(&(Press->Mutex));
 		printf("%s PressWait\n", __FUNCTION__);
 		if (PressActivated == 0)
@@ -207,7 +207,7 @@ void* PressTask(void* ptr){
 		//sem post
     
     }
-    printf("%s : Terminé\n", __FUNCTION__);
+    
 	pthread_exit(0); /* exit thread */
 }
 int PressInit(PressStruct* Press){
@@ -215,15 +215,13 @@ int PressInit(PressStruct* Press){
     pthread_attr_t		attr;
 	struct sched_param	param;
 	int					minprio, maxprio;
-	printf("sem ?\n");
-	//sem_init(&(User->Sem), 0, 0);
+
 	pthread_mutex_init(&(Press->Mutex),NULL);
 	
-	printf("barrier ?\n");
+	
 
 	int cr = pthread_barrier_init(&PressStartBarrier, NULL, 2);
 	
-	printf("thread ?\n");
 	pthread_attr_init(&attr);
 	pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -235,11 +233,9 @@ int PressInit(PressStruct* Press){
 	pthread_attr_setstacksize(&attr, THREADSTACK);
 	pthread_attr_setschedparam(&attr, &param);
 
-	printf("thread create ?\n");
 	pthread_create( &Press->Thread, &attr, &PressTask, Press);
 	pthread_attr_destroy(&attr);
 	
-	printf("temp ?\n");
 	Press->p = getPressure();
 
 	return 0;
@@ -249,7 +245,7 @@ int PressInit(PressStruct* Press){
 int PressStart(){
     
     PressActivated = 1;
-	printf("%s PressActivated\n", __FUNCTION__);
+	
 	pthread_barrier_wait(&PressStartBarrier);
 
 	pthread_barrier_destroy(&PressStartBarrier);
@@ -264,39 +260,39 @@ int PressStop(PressStruct* Press){
  
  PressActivated = 0;
 
-	//sem_post (&(User->Sem));
+	
 	pthread_mutex_unlock(&(Press->Mutex));
 
 	pthread_join(Press->Thread,NULL);
 	
-	//sem_destroy(&(User->Sem));
+	
 	pthread_mutex_destroy(&(Press->Mutex));
 	
 	return 0;
 }
     
 void* TempTask(void* ptr){
-    printf("%s UserInit\n", __FUNCTION__);
+   
 	TempStruct* Temp = (TempStruct*) ptr;
 	
 	pthread_barrier_wait(&TempStartBarrier);
 	
 	while(TempActivated == 1){
-		printf("%s UserActivated\n", __FUNCTION__);
+		
 		
 	
 		pthread_mutex_lock(&(Temp->Mutex));
-		printf("%s TempWait\n", __FUNCTION__);
+		
 		if (TempActivated == 0)
 					break;
 					
-		//recuperer Tempure
+		//recuperer Temperature
 		Temp->Ta = getTemperature();
 
 		//Send to Afficheur
 		sendToGUI(Temp->client_socket,2,Temp->Ta);
 		
-		//sem post
+	
     
     }
     printf("%s : Terminé\n", __FUNCTION__);
@@ -307,15 +303,13 @@ int TempInit(TempStruct* Temp){
     pthread_attr_t		attr;
 	struct sched_param	param;
 	int					minprio, maxprio;
-	printf("sem ?\n");
-	//sem_init(&(User->Sem), 0, 0);
+
 	pthread_mutex_init(&(Temp->Mutex),NULL);
 	
-	printf("barrier ?\n");
 
 	int cr = pthread_barrier_init(&TempStartBarrier, NULL, 2);
 	
-	printf("thread ?\n");
+
 	pthread_attr_init(&attr);
 	pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -327,11 +321,10 @@ int TempInit(TempStruct* Temp){
 	pthread_attr_setstacksize(&attr, THREADSTACK);
 	pthread_attr_setschedparam(&attr, &param);
 
-	printf("thread create ?\n");
+
 	pthread_create( &Temp->Thread, &attr, &TempTask, Temp);
 	pthread_attr_destroy(&attr);
 	
-	printf("temp ?\n");
 	Temp->Ta = getTemperature();
 
 	return 0;
@@ -341,11 +334,11 @@ int TempInit(TempStruct* Temp){
 int TempStart(){
     
     TempActivated = 1;
-	printf("%s TempActivated\n", __FUNCTION__);
+	
 	pthread_barrier_wait(&TempStartBarrier);
 
 	pthread_barrier_destroy(&TempStartBarrier);
-	printf("%s Temperatuure démarré\n", __FUNCTION__);
+	printf("%s Temperature démarré\n", __FUNCTION__);
 
 	return 0;
     
@@ -356,12 +349,12 @@ int TempStop(TempStruct* Temp){
  
  TempActivated = 0;
 
-	//sem_post (&(User->Sem));
+	
 	pthread_mutex_unlock(&(Temp->Mutex));
 
 	pthread_join(Temp->Thread,NULL);
 	
-	//sem_destroy(&(User->Sem));
+	
 	pthread_mutex_destroy(&(Temp->Mutex));
 	
 	return 0;

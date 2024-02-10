@@ -176,13 +176,12 @@ void* HumTask(void* ptr){
 		if (HumActivated == 0)
 					break;
 					
-		//recuperer Humure
+		//recuperer Humidity
 		Hum->hum = getHumidity();
 
 		//Send to Afficheur
 		sendToGUI(Hum->client_socket,4,Hum->hum);
 		
-		//sem post
     
     }
     printf("%s : Terminé\n", __FUNCTION__);
@@ -193,15 +192,13 @@ int HumInit(HumStruct* Hum){
     pthread_attr_t		attr;
 	struct sched_param	param;
 	int					minprio, maxprio;
-	printf("sem ?\n");
-	//sem_init(&(User->Sem), 0, 0);
+
 	pthread_mutex_init(&(Hum->Mutex),NULL);
 	
-	printf("barrier ?\n");
+
 
 	int cr = pthread_barrier_init(&HumStartBarrier, NULL, 2);
-	
-	printf("thread ?\n");
+
 	pthread_attr_init(&attr);
 	pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -213,11 +210,9 @@ int HumInit(HumStruct* Hum){
 	pthread_attr_setstacksize(&attr, THREADSTACK);
 	pthread_attr_setschedparam(&attr, &param);
 
-	printf("thread create ?\n");
 	pthread_create( &Hum->Thread, &attr, &HumTask, Hum);
 	pthread_attr_destroy(&attr);
-	
-	printf("Hum ?\n");
+
 	Hum->hum = getHumidity();
 
 	return 0;
@@ -247,7 +242,6 @@ int HumStop(HumStruct* Hum){
 
 	pthread_join(Hum->Thread,NULL);
 	
-	//sem_destroy(&(User->Sem));
 	pthread_mutex_destroy(&(Hum->Mutex));
 	
 	return 0;

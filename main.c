@@ -17,11 +17,11 @@ const char *HOST = "192.168.0.59";
 void getSignal(int u)
 {
     
-printf("I am the signal function !!\n");
-    pthread_mutex_unlock(&(Temp.Mutex));
+
+     pthread_mutex_unlock(&(Temp.Mutex));
      pthread_mutex_unlock(&(Press.Mutex));
      pthread_mutex_unlock(&(Hum.Mutex));;
-            }
+ }
 int main() {
     
 int client_socket = getOpenSocket(HOST);
@@ -69,9 +69,7 @@ int client_socket = getOpenSocket(HOST);
     
     UserStart();
     
-    printf("Waitinf for Joystick\n");
-
-    User.Keys = SenseHat_recupererEtatJoystick(s); //Commenter si FICTIF
+    User.Keys = SenseHat_recupererEtatJoystick(s); 
     
     while(User.Keys != KEY_ENTER){
         

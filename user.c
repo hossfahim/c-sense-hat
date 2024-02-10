@@ -21,10 +21,10 @@ void *UserTask ( void *ptr ) {
 	pthread_barrier_wait(&UserStartBarrier);
 	
 	while(UserActivated == 1){
-		printf("%s UserActivated\n", __FUNCTION__);
 		
-		//Attente valeur joystick (semaphore)
-		//sem_wait(&(User->Sem));
+		
+		//Attente valeur joystick (mutex)
+		
 		pthread_mutex_lock(&(User->Mutex));
 		printf("%s UserWait\n", __FUNCTION__);
 		if (UserActivated == 0)
@@ -34,7 +34,7 @@ void *UserTask ( void *ptr ) {
 		//recuperer T ambiante
 		User->Ta = getTemperature();
 		//Changement T désiré
-		printf("%s UserKeys : %d\n", __FUNCTION__, User->Keys);
+		
 		if(User->Keys == KEY_DOWN){
 			User->Td -=INCR_TEMP;
 		}else if (User->Keys == KEY_UP){
@@ -48,18 +48,18 @@ void *UserTask ( void *ptr ) {
 		}
 		//Calcule Puissance
 		float P = ((User->Ta - User->Td )/6)*100;
+		//Puissance Doit etre Entre 0 et 100
 		if(P<0){
 			P = 0;
 		}
-		//if(P>100){
-			//P = 100;
-		//}
-		//Envoie T désiré et Puissance
-		printf("%s:\n Ta = %f \n New Td = %f\n New P = %f\n", __FUNCTION__, User->Ta, User->Td, P); 
+		if(P>100){
+			P = 100;
+		}
+
 		//Send to Afficheur
 		sendToGUI(User->client_socket,0,User->Td);
 		sendToGUI(User->client_socket,1,P);
-		//sem post
+		
 	}
 	
 	printf("%s : Terminé\n", __FUNCTION__);
@@ -72,15 +72,13 @@ int UserInit (UserStruct *User) {
 	pthread_attr_t		attr;
 	struct sched_param	param;
 	int					minprio, maxprio;
-	printf("sem ?\n");
-	//sem_init(&(User->Sem), 0, 0);
+
 	pthread_mutex_init(&(User->Mutex),NULL);
 	
-	printf("barrier ?\n");
 
 	int cr = pthread_barrier_init(&UserStartBarrier, NULL, 2);
 	
-	printf("thread ?\n");
+
 	pthread_attr_init(&attr);
 	pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -92,12 +90,11 @@ int UserInit (UserStruct *User) {
 	pthread_attr_setstacksize(&attr, THREADSTACK);
 	pthread_attr_setschedparam(&attr, &param);
 
-	printf("thread create ?\n");
+	
 	pthread_create( &User->Thread, &attr, &UserTask, User);
 	pthread_attr_destroy(&attr);
 	
-	printf("temp ?\n");
-	User->Td = 10;
+	//User->Td = 10;
 
 	return 0;
 }
@@ -107,7 +104,7 @@ int UserInit (UserStruct *User) {
 int UserStart (void) {
                                             
 	UserActivated = 1;
-	printf("%s UserActivated\n", __FUNCTION__);
+	
 	pthread_barrier_wait(&UserStartBarrier);
 
 	pthread_barrier_destroy(&UserStartBarrier);
@@ -123,12 +120,10 @@ int UserStop (UserStruct *User) {
 
 	UserActivated = 0;
 
-	//sem_post (&(User->Sem));
 	pthread_mutex_unlock(&(User->Mutex));
 
 	pthread_join(User->Thread,NULL);
 	
-	//sem_destroy(&(User->Sem));
 	pthread_mutex_destroy(&(User->Mutex));
 	
 	return 0;
