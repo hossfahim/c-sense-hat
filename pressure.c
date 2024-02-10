@@ -36,7 +36,10 @@ pthread_barrier_t 	TempStartBarrier;
 void delay2(int);
 
 double getPressure () {
-    int fd = 0;
+int fd = 0;
+    uint8_t temp_out_l = 0, temp_out_h = 0;
+    int16_t temp_out = 0;
+    double t_c = 0.0;
 
     uint8_t press_out_xl = 0;
     uint8_t press_out_l = 0;
@@ -84,7 +87,9 @@ double getPressure () {
         status = i2c_smbus_read_byte_data(fd, CTRL_REG2);
     } while (status != 0);
 
-
+    /* Read the temperature measurement (2 bytes to read) */
+    temp_out_l = i2c_smbus_read_byte_data(fd, TEMP_OUT_L);
+    temp_out_h = i2c_smbus_read_byte_data(fd, TEMP_OUT_H);
 
     /* Read the pressure measurement (3 bytes to read) */
     press_out_xl = i2c_smbus_read_byte_data(fd, PRESS_OUT_XL);
@@ -92,21 +97,23 @@ double getPressure () {
     press_out_h = i2c_smbus_read_byte_data(fd, PRESS_OUT_H);
 
     /* make 16 and 24 bit values (using bit shift) */
-    
+    temp_out = temp_out_h << 8 | temp_out_l;
     press_out = press_out_h << 16 | press_out_l << 8 | press_out_xl;
 
     /* calculate output values */
-
+    t_c = 42.5 + (temp_out / 480.0);
     pressure = press_out / 4096.0;
 
-
+    /*output */
+    //printf("Temp (from press) = %.2f°C\n", t_c);
+   // printf("Pressure = %.0f hPa\n", pressure);
 
     /* Power down the device */
     i2c_smbus_write_byte_data(fd, CTRL_REG1, 0x00);
 
     close(fd);
-
-    return pressure;
+//L'afficheur met l'unite de mesure comme etant en Pascals (PA). Convertir hecto pascal (hPa) en Pascals Pa 
+    return pressure*100;
 }
 
 
@@ -116,7 +123,14 @@ double getTemperature(){
 int fd = 0;
     uint8_t temp_out_l = 0, temp_out_h = 0;
     int16_t temp_out = 0;
-    double temp = 0.0;
+    double t_c = 0.0;
+
+    uint8_t press_out_xl = 0;
+    uint8_t press_out_l = 0;
+    uint8_t press_out_h = 0;
+
+    int32_t press_out = 0;
+    double pressure = 0.0;
 
     uint8_t status = 0;
 
@@ -157,21 +171,33 @@ int fd = 0;
         status = i2c_smbus_read_byte_data(fd, CTRL_REG2);
     } while (status != 0);
 
+    /* Read the temperature measurement (2 bytes to read) */
+    temp_out_l = i2c_smbus_read_byte_data(fd, TEMP_OUT_L);
+    temp_out_h = i2c_smbus_read_byte_data(fd, TEMP_OUT_H);
 
+    /* Read the pressure measurement (3 bytes to read) */
+    press_out_xl = i2c_smbus_read_byte_data(fd, PRESS_OUT_XL);
+    press_out_l = i2c_smbus_read_byte_data(fd, PRESS_OUT_L);
+    press_out_h = i2c_smbus_read_byte_data(fd, PRESS_OUT_H);
 
     /* make 16 and 24 bit values (using bit shift) */
     temp_out = temp_out_h << 8 | temp_out_l;
-   
+    press_out = press_out_h << 16 | press_out_l << 8 | press_out_xl;
 
     /* calculate output values */
-    temp = 42.5 + (temp_out / 480.0);
+    t_c = 42.5 + (temp_out / 480.0);
+    pressure = press_out / 4096.0;
+
+    /*output */
+    //printf("Temp (from press) = %.2f°C\n", t_c);
+    //printf("Pressure = %.0f hPa\n", pressure);
 
     /* Power down the device */
     i2c_smbus_write_byte_data(fd, CTRL_REG1, 0x00);
 
     close(fd);
 
-    return temp;
+    return t_c;
     
     
     }

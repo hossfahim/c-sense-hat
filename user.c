@@ -47,7 +47,7 @@ void *UserTask ( void *ptr ) {
 			User->Td = 30;
 		}
 		//Calcule Puissance
-		float P = ((User->Ta - User->Td )/6)*100;
+		float P = ((User->Td - User->Ta )/6)*100;
 		//Puissance Doit etre Entre 0 et 100
 		if(P<0){
 			P = 0;
