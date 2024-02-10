@@ -26,8 +26,8 @@ typedef struct hum_struct {
 } HumStruct;
 
 void* HumTask(void* ptr);
-int HumInit (HumStruct *Temp);
+int HumInit (HumStruct *Hum);
 int HumStart (void);
-int HumStop (HumStruct *Temp);
+int HumStop (HumStruct *Hum);
 
 #endif

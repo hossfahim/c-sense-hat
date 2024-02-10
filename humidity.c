@@ -162,14 +162,12 @@ void delay1(int t) {
 }
 
 void* HumTask(void* ptr){
-    printf("%s UserInit\n", __FUNCTION__);
+    printf("%sHumInit\n", __FUNCTION__);
 	HumStruct* Hum = (HumStruct*) ptr;
 	
 	pthread_barrier_wait(&HumStartBarrier);
 	
 	while(HumActivated == 1){
-		printf("%s UserActivated\n", __FUNCTION__);
-		
 	
 		pthread_mutex_lock(&(Hum->Mutex));
 		printf("%s HumWait\n", __FUNCTION__);

@@ -1,6 +1,7 @@
 #include "sock.h"
 #include "pressure.h"
 #include "humidity.h"
+#include "power.h"
 #include "user.h"
 #include <sys/time.h>
 #include "SenseHat/senseHat.h"
@@ -12,6 +13,7 @@ const char *HOST = "192.168.0.59";
  TempStruct Temp;
  PressStruct Press;
  HumStruct Hum;
+ PowStruct Pow;
  
 
 void getSignal(int u)
@@ -20,7 +22,8 @@ void getSignal(int u)
 
      pthread_mutex_unlock(&(Temp.Mutex));
      pthread_mutex_unlock(&(Press.Mutex));
-     pthread_mutex_unlock(&(Hum.Mutex));;
+     pthread_mutex_unlock(&(Hum.Mutex));
+     pthread_mutex_unlock(&(Pow.Mutex));
  }
 int main() {
     
@@ -36,15 +39,22 @@ int client_socket = getOpenSocket(HOST);
     Press.client_socket = client_socket;
     Hum.client_socket = client_socket;
 
+//Initialiser envoi power periodique
+
+Pow.Temp = Temp;
+Pow.client_socket = client_socket;
+
 //Creer et demarrer les threads periodique
 	
 	TempInit(&Temp);
 	PressInit(&Press);
 	HumInit(&Hum);
+	PowInit(&Pow);
 	
 	TempStart();
 	PressStart();
 	HumStart();
+	PowStart();
 
 //Programmer le timer pour taches periodiques
   struct itimerval timer;
@@ -59,6 +69,8 @@ int client_socket = getOpenSocket(HOST);
 
  //La tache joystick
     UserStruct User;
+ //Passer le user au power
+    Pow.Usr = User;
     //Initialiser temperature desiree
     User.Td = 15;
     User.client_socket = client_socket;
