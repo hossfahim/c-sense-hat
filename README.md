@@ -22,9 +22,14 @@ then
 ```
 make 
 ```
+or (if make does not work)
+```
+gcc  main.c -o main pressure.c humidity.c power.c sock.c user.c SenseHat/senseHat.c -li2c -lpthread
+
+````
 finally
 ```
-./sock
+sudo ./main -lpthread
 ```
 
 pressure.c : Get pressure and temperature readings from the LPS25H pressure sensor.

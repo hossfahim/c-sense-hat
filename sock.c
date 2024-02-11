@@ -34,16 +34,16 @@ int getOpenSocket(char* HOST){
     }
 
 void sendToGUI(int client_socket, int type, float val){
-
+    double value = val;
+    char Buff[10]; // 10
 switch (type){
     
     case 0:
     //SEND DESIRED TEMPERATURE TO GUI
-    double desiredTemperature = val;
-    char desiredTemperature_Buff[10]; // 10
-        sprintf(desiredTemperature_Buff, "TD%f\n", desiredTemperature);
 
-        if (send(client_socket, desiredTemperature_Buff, strlen(desiredTemperature_Buff), 0) == -1)
+        sprintf(Buff, "TD%f\n", value);
+
+        if (send(client_socket,Buff, strlen(Buff), 0) == -1)
         {
             perror("Error sending data");
             close(client_socket);
@@ -54,11 +54,10 @@ switch (type){
     
     case 1:
     //SEND POWER TO GUI
-     double power = val;
-     char power_Buff[10]; // 10
-        sprintf(power_Buff, "PW%f\n", power);
 
-        if (send(client_socket, power_Buff, strlen(power_Buff), 0) == -1)
+        sprintf(Buff, "PW%f\n", value);
+
+        if (send(client_socket, Buff, strlen(Buff), 0) == -1)
         {
             perror("Error sending data");
             close(client_socket);
@@ -69,11 +68,10 @@ switch (type){
     
     case 2:
     // SEND AMBIANT TEMPERATURE TO GUI
-        double T_DegC = val;
-        char T_DegC_Buff[10]; // 10
-        sprintf(T_DegC_Buff, "TP%f\n", T_DegC);
+       
+        sprintf(Buff, "TP%f\n", value);
 
-        if (send(client_socket, T_DegC_Buff, strlen(T_DegC_Buff), 0) == -1)
+        if (send(client_socket, Buff, strlen(Buff), 0) == -1)
         {
             perror("Error sending data");
             close(client_socket);
@@ -84,11 +82,10 @@ switch (type){
     
     case 3:
     // SEND PRESSURE TO GUI
-    double pressure = val;
-    char pressure_Buff[10]; // 10
-        sprintf(pressure_Buff, "PR%f\n", pressure);
+    
+        sprintf(Buff, "PR%f\n", value);
 
-        if (send(client_socket, pressure_Buff, strlen(pressure_Buff), 0) == -1)
+        if (send(client_socket, Buff, strlen(Buff), 0) == -1)
         {
             perror("Error sending data");
             close(client_socket);
@@ -98,11 +95,10 @@ switch (type){
     
     case 4:
     //SEND HUMIDITY to GUI
-    double H_rH = val;
-    char H_rH_Buff[10]; // 10
-        sprintf(H_rH_Buff, "HU%f\n", H_rH);
+    
+        sprintf(Buff, "HU%f\n", value);
 
-        if (send(client_socket, H_rH_Buff, strlen(H_rH_Buff), 0) == -1)
+        if (send(client_socket, Buff, strlen(Buff), 0) == -1)
         {
             perror("Error sending data");
             close(client_socket);
