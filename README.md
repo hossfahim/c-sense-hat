@@ -29,7 +29,7 @@ gcc  main.c -o main pressure.c humidity.c power.c sock.c user.c SenseHat/senseHa
 ````
 finally
 ```
-sudo ./main -lpthread
+sudo ./main
 ```
 
 pressure.c : Get pressure and temperature readings from the LPS25H pressure sensor.
